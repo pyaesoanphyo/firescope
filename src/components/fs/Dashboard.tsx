@@ -32,13 +32,13 @@ export function Dashboard() {
 
   const perDate = useMemo(() => {
     const m: Record<string, Partial<Record<SensorId, number>>> = {};
-    rows?.forEach((r) => { if (!sensors.includes(r.s)) return; (m[r.d] ??= {})[r.s] = (m[r.d][r.s] ?? 0) + r.n; });
+    rows?.forEach((r) => { if (!sensors.includes(r.s)) return; const o = (m[r.d] ??= {}); o[r.s] = (o[r.s] ?? 0) + r.n; });
     return m;
   }, [rows, sensors]);
   const maxDay = Math.max(1, ...Object.values(perDate).map((o) => Object.values(o).reduce((a, b) => a + (b ?? 0), 0)));
 
   const idx = AVAILABLE_DATES.indexOf(date);
-  const step = (d: number) => { const i = idx < 0 ? 0 : (idx + d + AVAILABLE_DATES.length) % AVAILABLE_DATES.length; setDate(AVAILABLE_DATES[i]); };
+  const step = (d: number) => { const i = idx < 0 ? 0 : (idx + d + AVAILABLE_DATES.length) % AVAILABLE_DATES.length; setDate(AVAILABLE_DATES[i] ?? AVAILABLE_DATES[0]!); };
   useEffect(() => { if (!playing) return; const t = setInterval(() => step(1), 2200); return () => clearInterval(t); });
 
   async function search(e: React.FormEvent) {
