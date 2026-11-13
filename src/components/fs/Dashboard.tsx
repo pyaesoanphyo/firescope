@@ -121,7 +121,7 @@ export function Dashboard() {
       </div>
 
       {/* Right panel */}
-      <div className="panel absolute right-4 top-20 w-72 space-y-4 p-4">
+      <div className="panel absolute right-4 top-28 w-72 space-y-4 p-4">
         <div>
           <div className="label-caps">Current view</div>
           <div className="mt-1 text-3xl font-semibold tabular-nums">{noData ? "No Data" : fmtInt(total)}</div>
@@ -172,7 +172,7 @@ export function Dashboard() {
       {/* Bottom timeline */}
       <div className="panel absolute inset-x-4 bottom-4 p-3">
         <div className="mb-2 flex items-center justify-between">
-          <span className="label-caps">Daily fire activity · available observation dates</span>
+          <span className="label-caps">Daily fire activity · available observation dates (√ scale)</span>
           <span className="font-mono text-[10px] text-muted-foreground">Gap 2024-01-06 → 2025-12-29: No Data</span>
         </div>
         <div className="flex h-20 items-end gap-2">
@@ -183,7 +183,7 @@ export function Dashboard() {
               <div key={d} className="contents">
                 {i === 5 && <div className="flex h-full w-16 items-center justify-center border-x border-dashed border-border font-mono text-[10px] text-muted-foreground">No Data</div>}
                 <button onClick={() => setDate(d)} className={`group flex h-full flex-1 flex-col justify-end rounded px-1 ${d === date ? "bg-secondary" : "hover:bg-secondary/60"}`}>
-                  <div className="flex w-full flex-col-reverse overflow-hidden rounded-sm" style={{ height: `${(sum / maxDay) * 70}%` }}>
+                  <div className="flex w-full flex-col-reverse overflow-hidden rounded-sm" style={{ height: `${Math.sqrt(sum / maxDay) * 70}%` }}>
                     {SENSORS.map((s) => o[s.id] ? <div key={s.id} style={{ background: s.color, flexGrow: o[s.id] }} /> : null)}
                   </div>
                   <div className="mt-1 flex justify-between font-mono text-[10px]">
