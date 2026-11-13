@@ -55,9 +55,10 @@ export function hasData(date: string) { return date === "all" || AVAILABLE_DATES
 export const fmt = (v: number | null | undefined, d = 1) => (v == null || Number.isNaN(v) ? "—" : v.toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d }));
 export const fmtInt = (v: number) => v.toLocaleString();
 
-export async function loadCsv(path: string): Promise<Record<string, string>[]> {
+export async function loadCsv(path: string): Promise<any[]> {
   const t = await (await fetch(path)).text();
   const [h, ...lines] = t.trim().split(/\r?\n/);
   const cols = (h ?? "").split(",");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return lines.map((l) => Object.fromEntries(l.split(",").map((v, i) => [cols[i] ?? "", v])));
 }

@@ -14,7 +14,7 @@ export const Route = createFileRoute("/sensors")({
 });
 
 function SensorsPage() {
-  const [rows, setRows] = useState<Record<string, string>[]>([]);
+  const [rows, setRows] = useState<Record<string, any>[]>([]);
   useEffect(() => { loadCsv("/data/frp_summary_by_sensor.csv").then(setRows); }, []);
   const maxMean = Math.max(1, ...rows.map((r) => +r.mean_frp));
   return (
