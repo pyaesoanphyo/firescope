@@ -58,6 +58,6 @@ export const fmtInt = (v: number) => v.toLocaleString();
 export async function loadCsv(path: string): Promise<Record<string, string>[]> {
   const t = await (await fetch(path)).text();
   const [h, ...lines] = t.trim().split(/\r?\n/);
-  const cols = h.split(",");
-  return lines.map((l) => Object.fromEntries(l.split(",").map((v, i) => [cols[i], v])));
+  const cols = (h ?? "").split(",");
+  return lines.map((l) => Object.fromEntries(l.split(",").map((v, i) => [cols[i] ?? "", v])));
 }
