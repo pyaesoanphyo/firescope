@@ -61,6 +61,7 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
       const g = viewer.scene.globe;
       g.enableLighting = true; g.dynamicAtmosphereLighting = true; g.dynamicAtmosphereLightingFromSun = true;
       g.showGroundAtmosphere = true; g.baseColor = Cesium.Color.fromCssColorString("#0b1226");
+      g.depthTestAgainstTerrain = true;
       viewer.scene.skyAtmosphere.show = true;
       viewer.clock.currentTime = Cesium.JulianDate.now();
       viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(20, 5, 2.2e7) });
