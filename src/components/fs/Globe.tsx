@@ -65,6 +65,56 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
       viewer.clock.currentTime = Cesium.JulianDate.now();
       viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(20, 5, 2.2e7) });
       const points = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
+      // Natural Earth public-domain country outlines and cartographic label points.
+      const theme = getComputedStyle(el.current);
+      const mapColor = (token: string) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return Cesium.Color.WHITE;
+        ctx.fillStyle = theme.getPropertyValue(token).trim();
+        ctx.fillRect(0, 0, 1, 1);
+        const [r, green, b] = ctx.getImageData(0, 0, 1, 1).data;
+        return new Cesium.Color((r ?? 255) / 255, (green ?? 255) / 255, (b ?? 255) / 255);
+      };
+      const borderColor = mapColor("--country-border");
+      const labelColor = mapColor("--country-label");
+      const outlineColor = mapColor("--country-label-outline");
+      fetch("/data/countries.geojson").then((r) => {
+        if (!r.ok) throw new Error("Country map unavailable");
+        return r.json();
+      }).then((data) => {
+        if (destroyed || viewer.isDestroyed()) return;
+        const borders = viewer.scene.primitives.add(new Cesium.PolylineCollection());
+        const labels = viewer.scene.primitives.add(new Cesium.LabelCollection());
+        for (const feature of data.features) {
+          const polygons = feature.geometry.type === "Polygon" ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+          for (const polygon of polygons) {
+            for (const ring of polygon) {
+              borders.add({
+                positions: Cesium.Cartesian3.fromDegreesArray(ring.flat()),
+                width: 1.2,
+                material: Cesium.Material.fromType("Color", { color: borderColor.withAlpha(0.65) }),
+              });
+            }
+          }
+          const { NAME_EN, LABEL_X, LABEL_Y, LABELRANK } = feature.properties;
+          const maxDistance = LABELRANK <= 3 ? 5e7 : LABELRANK <= 5 ? 1.2e7 : 5e6;
+          labels.add({
+            position: Cesium.Cartesian3.fromDegrees(LABEL_X, LABEL_Y, 1000),
+            text: NAME_EN,
+            font: "12px 'Space Grotesk', sans-serif",
+            fillColor: labelColor,
+            outlineColor,
+            outlineWidth: 3,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            verticalOrigin: Cesium.VerticalOrigin.CENTER,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, maxDistance),
+            scaleByDistance: new Cesium.NearFarScalar(1e6, 1, 3e7, 0.8),
+          });
+        }
+        el.current?.setAttribute("data-country-count", String(labels.length));
+      }).catch((error) => console.error("Country overlay:", error));
       const h = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
       h.setInputAction((e: C) => {
         const p = viewer.scene.pick(e.position);

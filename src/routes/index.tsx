@@ -7,6 +7,8 @@ export const Route = createFileRoute("/")({
     { name: "description", content: "Explore satellite-detected fire activity on an interactive day/night 3D Earth." },
     { property: "og:title", content: "FireScope — 3D Global Fire Activity" },
     { property: "og:description", content: "Explore satellite-detected fire activity on an interactive day/night 3D Earth." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
   ] }),
   component: Dashboard,
 });

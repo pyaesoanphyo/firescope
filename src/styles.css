@@ -103,6 +103,9 @@
   --fire-hot: oklch(0.62 0.22 30);
   --amber: oklch(0.83 0.15 80);
   --atmo: oklch(0.7 0.12 235);
+  --country-border: oklch(0.9 0.025 220);
+  --country-label: oklch(0.97 0.005 250);
+  --country-label-outline: oklch(0.13 0.03 262);
   --chart-1: oklch(0.74 0.18 55);
   --chart-2: oklch(0.7 0.12 235);
   --chart-3: oklch(0.83 0.15 80);

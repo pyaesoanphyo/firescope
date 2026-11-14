@@ -9,6 +9,8 @@ export const Route = createFileRoute("/sensors")({
     { name: "description", content: "Fire radiative power statistics for MODIS and VIIRS sensors." },
     { property: "og:title", content: "Sensor Analysis — FireScope" },
     { property: "og:description", content: "Fire radiative power statistics for MODIS and VIIRS sensors." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
   ] }),
   component: SensorsPage,
 });
