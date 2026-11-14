@@ -92,7 +92,7 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
           for (const polygon of polygons) {
             for (const ring of polygon) {
               borders.add({
-                positions: Cesium.Cartesian3.fromDegreesArray(ring.flat()),
+                positions: Cesium.Cartesian3.fromDegreesArrayHeights(ring.flatMap(([lon, lat]: number[]) => [lon, lat, 10000])),
                 width: 1.2,
                 material: Cesium.Material.fromType("Color", { color: borderColor.withAlpha(0.65) }),
               });
@@ -101,7 +101,7 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
           const { NAME_EN, LABEL_X, LABEL_Y, LABELRANK } = feature.properties;
           const maxDistance = LABELRANK <= 3 ? 5e7 : LABELRANK <= 5 ? 1.2e7 : 5e6;
           labels.add({
-            position: Cesium.Cartesian3.fromDegrees(LABEL_X, LABEL_Y, 1000),
+            position: Cesium.Cartesian3.fromDegrees(LABEL_X, LABEL_Y, 15000),
             text: NAME_EN,
             font: "12px 'Space Grotesk', sans-serif",
             fillColor: labelColor,
