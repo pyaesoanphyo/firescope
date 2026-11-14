@@ -28,3 +28,5 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep country boundaries and cartographic label positions in a local Natural Earth GeoJSON overlay, separate from fire primitives, so geographic context does not change fire filtering or picking.

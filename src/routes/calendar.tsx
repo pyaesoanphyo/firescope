@@ -9,6 +9,8 @@ export const Route = createFileRoute("/calendar")({
     { name: "description", content: "Daily fire observation counts across the FireScope pilot dates." },
     { property: "og:title", content: "Fire Calendar — FireScope" },
     { property: "og:description", content: "Daily fire observation counts across the FireScope pilot dates." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
   ] }),
   component: CalendarPage,
 });

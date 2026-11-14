@@ -7,6 +7,8 @@ export const Route = createFileRoute("/methods")({
     { name: "description", content: "Dataset scope, gridding and data-integrity rules behind FireScope." },
     { property: "og:title", content: "Data & Methods — FireScope" },
     { property: "og:description", content: "Dataset scope, gridding and data-integrity rules behind FireScope." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
   ] }),
   component: () => (
     <AppShell>
