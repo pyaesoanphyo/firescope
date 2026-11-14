@@ -61,7 +61,6 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
       const g = viewer.scene.globe;
       g.enableLighting = true; g.dynamicAtmosphereLighting = true; g.dynamicAtmosphereLightingFromSun = true;
       g.showGroundAtmosphere = true; g.baseColor = Cesium.Color.fromCssColorString("#0b1226");
-      g.depthTestAgainstTerrain = true;
       viewer.scene.skyAtmosphere.show = true;
       viewer.clock.currentTime = Cesium.JulianDate.now();
       viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(20, 5, 2.2e7) });
@@ -92,7 +91,7 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
           for (const polygon of polygons) {
             for (const ring of polygon) {
               borders.add({
-                positions: Cesium.Cartesian3.fromDegreesArrayHeights(ring.flatMap(([lon, lat]: number[]) => [lon, lat, 10000])),
+                positions: Cesium.Cartesian3.fromDegreesArray(ring.flat()),
                 width: 1.2,
                 material: Cesium.Material.fromType("Color", { color: borderColor.withAlpha(0.65) }),
               });
@@ -114,6 +113,14 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
             scaleByDistance: new Cesium.NearFarScalar(1e6, 1, 3e7, 0.8),
           });
         }
+        const occluder = new Cesium.EllipsoidalOccluder(Cesium.Ellipsoid.WGS84, viewer.camera.positionWC);
+        viewer.scene.preRender.addEventListener(() => {
+          occluder.cameraPosition = viewer.camera.positionWC;
+          for (let i = 0; i < labels.length; i++) {
+            const label = labels.get(i);
+            label.show = occluder.isPointVisible(label.position);
+          }
+        });
         el.current?.setAttribute("data-country-count", String(labels.length));
       }).catch((error) => console.error("Country overlay:", error));
       const h = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
