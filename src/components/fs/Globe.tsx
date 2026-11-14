@@ -100,7 +100,7 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
           const { NAME_EN, LABEL_X, LABEL_Y, LABELRANK } = feature.properties;
           const maxDistance = LABELRANK <= 3 ? 5e7 : LABELRANK <= 5 ? 1.2e7 : 5e6;
           labels.add({
-            position: Cesium.Cartesian3.fromDegrees(LABEL_X, LABEL_Y, 15000),
+            position: Cesium.Cartesian3.fromDegrees(LABEL_X, LABEL_Y, 1000),
             text: NAME_EN,
             font: "12px 'Space Grotesk', sans-serif",
             fillColor: labelColor,
@@ -113,14 +113,6 @@ export function Globe({ cells, selected, onSelect, onReady, onTime }: {
             scaleByDistance: new Cesium.NearFarScalar(1e6, 1, 3e7, 0.8),
           });
         }
-        const occluder = new Cesium.EllipsoidalOccluder(Cesium.Ellipsoid.WGS84, viewer.camera.positionWC);
-        viewer.scene.preRender.addEventListener(() => {
-          occluder.cameraPosition = viewer.camera.positionWC;
-          for (let i = 0; i < labels.length; i++) {
-            const label = labels.get(i);
-            label.show = occluder.isPointVisible(label.position);
-          }
-        });
         el.current?.setAttribute("data-country-count", String(labels.length));
       }).catch((error) => console.error("Country overlay:", error));
       const h = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
