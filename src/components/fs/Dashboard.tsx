@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play, Search, X } from "lucide-react";
+import { LayerFilter } from "./LayerFilter";
+import { defaultLayers, type LayerStatus, type MapFeature } from "@/lib/map-layers";
 import { AppShell } from "./AppShell";
 import { Globe, type GlobeApi } from "./Globe";
 import { AVAILABLE_DATES, SENSORS, aggregate, fmt, fmtInt, hasData, loadGrid, type RawCell, type SensorId } from "@/lib/firescope";
@@ -7,6 +9,9 @@ import { AVAILABLE_DATES, SENSORS, aggregate, fmt, fmtInt, hasData, loadGrid, ty
 const ALL = SENSORS.map((s) => s.id);
 
 export function Dashboard() {
+  const [layers, setLayers] = useState(defaultLayers);
+  const [layerStatuses, setLayerStatuses] = useState<LayerStatus>({});
+  const [mapFeature, setMapFeature] = useState<MapFeature | null>(null);
   const [rows, setRows] = useState<RawCell[] | null>(null);
   const [date, setDate] = useState<string>("2024-01-01");
   const [sensors, setSensors] = useState<SensorId[]>(ALL);
@@ -27,7 +32,7 @@ export function Dashboard() {
     const n = rc.reduce((a, c) => a + c.n, 0);
     const fn = rc.filter((c) => c.meanFrp != null);
     const fw = fn.reduce((a, c) => a + c.n, 0);
-    return { cells: rc.length, n, meanFrp: fw ? fn.reduce((a, c) => a + c.meanFrp! * c.n, 0) / fw : null };
+    return { cells: rc.length, n, meanFrp: fw ? fn.reduce((a, c) => a + (c.meanFrp ?? 0) * c.n, 0) / fw : null };
   }, [sel, cells]);
 
   const perDate = useMemo(() => {
@@ -38,7 +43,7 @@ export function Dashboard() {
   const maxDay = Math.max(1, ...Object.values(perDate).map((o) => Object.values(o).reduce((a, b) => a + (b ?? 0), 0)));
 
   const idx = AVAILABLE_DATES.indexOf(date);
-  const step = (d: number) => { const i = idx < 0 ? 0 : (idx + d + AVAILABLE_DATES.length) % AVAILABLE_DATES.length; setDate(AVAILABLE_DATES[i] ?? AVAILABLE_DATES[0]!); };
+  const step = (d: number) => { const i = idx < 0 ? 0 : (idx + d + AVAILABLE_DATES.length) % AVAILABLE_DATES.length; setDate(AVAILABLE_DATES[i] ?? AVAILABLE_DATES[0] ?? "2024-01-01"); };
   useEffect(() => { if (!playing) return; const t = setInterval(() => step(1), 2200); return () => clearInterval(t); });
 
   async function search(e: React.FormEvent) {
@@ -57,7 +62,7 @@ export function Dashboard() {
 
   return (
     <AppShell>
-      <Globe cells={cells} selected={selected} onSelect={setSelected} onReady={(a) => (api.current = a)} onTime={setUtc} />
+      <Globe layers={layers} onMapSelect={setMapFeature} onLayerStatus={(id, status) => setLayerStatuses((p) => ({ ...p, [id]: status }))} cells={cells} selected={selected} onSelect={setSelected} onReady={(a) => (api.current = a)} onTime={setUtc} />
 
       {/* Top controls */}
       <div className="pointer-events-none absolute inset-x-4 top-4 flex flex-wrap items-start gap-3">
@@ -83,6 +88,7 @@ export function Dashboard() {
             );
           })}
         </div>
+        <LayerFilter layers={layers} statuses={layerStatuses} onChange={(id, value) => { setLayers((p) => ({ ...p, [id]: value })); setMapFeature(null); }} />
         <form onSubmit={search} className="panel pointer-events-auto ml-auto flex items-center gap-2 px-3 py-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search location"
@@ -121,7 +127,7 @@ export function Dashboard() {
       </div>
 
       {/* Right panel */}
-      <div className="panel absolute right-4 top-28 w-72 space-y-4 p-4">
+      <div className="panel absolute right-4 top-40 w-72 space-y-4 p-4">
         <div>
           <div className="label-caps">Current view</div>
           <div className="mt-1 text-3xl font-semibold tabular-nums">{noData ? "No Data" : fmtInt(total)}</div>
@@ -147,7 +153,7 @@ export function Dashboard() {
             <div className="space-y-1">
               <div className="label-caps">By sensor</div>
               {SENSORS.filter((s) => sel.bySensor[s.id]).map((s) => {
-                const b = sel.bySensor[s.id]!;
+                const b = sel.bySensor[s.id]; if (!b) return null;
                 return (
                   <div key={s.id} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2 font-mono text-[11px]">
                     <span className="flex items-center gap-1.5 font-sans"><span className="h-2 w-2 rounded-full" style={{ background: s.color }} />{s.label}</span>
@@ -164,6 +170,8 @@ export function Dashboard() {
               </div>
             )}
           </div>
+        ) : mapFeature ? (
+          <div className="space-y-2"><div className="label-caps">{mapFeature.layer}</div><div className="font-semibold">{mapFeature.name}</div><div className="text-xs text-muted-foreground">{mapFeature.details}</div>{mapFeature.lon != null && mapFeature.lat != null && <div className="font-mono text-xs">{fmt(mapFeature.lat, 3)}°, {fmt(mapFeature.lon, 3)}°</div>}</div>
         ) : (
           <div className="text-sm text-muted-foreground">Click a fire marker on the globe to see observation count, FRP and sensor breakdown for that grid cell and its region.</div>
         )}

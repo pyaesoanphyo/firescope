@@ -30,3 +30,5 @@ use the editor.
 <!-- LOVABLE:END -->
 
 - Keep country boundaries and cartographic label positions in a local Natural Earth GeoJSON overlay, separate from fire primitives, so geographic context does not change fire filtering or picking.
+
+- Load optional geography as independent browser-only Cesium collections, default hidden, with local sourced GeoJSON; use drill picking to prioritize fire cells over context layers.
